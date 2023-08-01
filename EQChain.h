@@ -35,9 +35,26 @@ inline void updateCoefficients(Coefficients& old, const Coefficients& replacemen
     *old = *replacements;
 };
 
+// this will update coefficients and then ensure we a re not bypassing hte filter (used for the cut filters, which have 4 filters)
+template<int Index, typename ChainType, typename CoefficientType>
+inline void updateCoefficientsUnBypass(ChainType& chain, const CoefficientType coefficients){
+    updateCoefficients(chain.template get<Index>().coefficients, coefficients[Index]);
+    chain.template setBypassed<Index>(false);
+};
+
 inline Coefficients makePeakFilter(const PeakSettings& chainSettings, double sampleRate) {
     return juce::dsp::IIR::Coefficients<float>::makePeakFilter(sampleRate, chainSettings.peakFreq, chainSettings.peakQuality,juce::Decibels::decibelsToGain(chainSettings.peakGainDecibels));
-}
+};
+
+inline auto makeLowCutFilter(const EQSettings& chainSettings, double sampleRate) {
+    return juce::dsp::FilterDesign<float>::designIIRHighpassHighOrderButterworthMethod(chainSettings.lowCutFreq, sampleRate, (chainSettings.lowCutSlope+1)*2);
+};
+
+inline auto makeHighCutFilter(const EQSettings& chainSettings, double sampleRate) {
+   return juce::dsp::FilterDesign<float>::designIIRLowpassHighOrderButterworthMethod(chainSettings.highCutFreq, sampleRate, (chainSettings.highCutSlope+1)*2);
+};
+
+
 
 class EQChain {
     public:
@@ -49,4 +66,10 @@ class EQChain {
         double sampleRate;
 
         void updatePeakFilters(const EQSettings &settings);
+        void updateLowCutFilters(const EQSettings &settings);
+        void updateHighCutFilters(const EQSettings &settings);
+
+        template<typename ChainType, typename CoefficientType>
+        void updateCutFilters(ChainType& chain, const CoefficientType& coefficients, const Slope& slope);
+ 
 };
