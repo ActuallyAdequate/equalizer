@@ -1,3 +1,8 @@
+# JUCE
+/JUCE
+/build
+/cmake-build
+
 # Prerequisites
 *.d
 
