@@ -14,7 +14,7 @@ enum Channel {
  //   BOTH
 };
 
-std::map<Channel, juce::String> channelNames {
+inline std::map<Channel, juce::String> channelNames {
     {LEFT, "Left"},
    {RIGHT, "right"},
  //   {BOTH, "Both"}

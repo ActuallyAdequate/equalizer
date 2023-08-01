@@ -173,8 +173,8 @@ void EqualizerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     
 
     // pass our audio through the chains to perform operations
-    chains[LEFT]->process(leftContext);
-    chains[RIGHT]->process(rightContext);
+    left.process(leftContext);
+    right.process(rightContext);
    // chains[BOTH]->process(leftContext);
     // chains[BOTH]->process(rightContext);    
 }
@@ -187,8 +187,8 @@ bool EqualizerAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* EqualizerAudioProcessor::createEditor()
 {
-    return new juce::GenericAudioProcessorEditor(*this);
-    //return new EqualizerAudioEditor (*this);
+    //return new juce::GenericAudioProcessorEditor(*this);
+    return new EqualizerAudioEditor (*this);
 }
 
 //==============================================================================

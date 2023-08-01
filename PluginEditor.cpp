@@ -6,32 +6,31 @@ EqualizerAudioEditor::EqualizerAudioEditor (EqualizerAudioProcessor& p)
     : AudioProcessorEditor (&p), processorRef (p)
 {
     juce::ignoreUnused (processorRef);
+    addAndMakeVisible(controlSpectrum);
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-    setSize (200, 200);
+    setSize (800, 600);
+    setResizable(true, true);
 }
 
 EqualizerAudioEditor::~EqualizerAudioEditor()
 {
+    
 }
 
 //==============================================================================
 void EqualizerAudioEditor::paint (juce::Graphics& g)
 {
-    // (Our component is opaque, so we must completely fill the background with a solid colour)
-   // fill the whole window white
-    g.fillAll (juce::Colours::white);
- 
-    // set the current drawing colour to black
-    g.setColour (juce::Colours::black);
- 
-    // set the font size and draw text to the screen
-    g.setFont (15.0f);
+     using namespace juce;
+    g.fillAll(Colours::grey);
 }
 
 void EqualizerAudioEditor::resized()
 {
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
+    auto bounds = getLocalBounds();
+    auto spectrumControlArea = bounds.removeFromTop(bounds.getHeight() * 0.66);
+    controlSpectrum.setBounds(spectrumControlArea);
 }
 
