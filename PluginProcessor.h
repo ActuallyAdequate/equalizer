@@ -71,12 +71,20 @@ public:
     juce::AudioProcessorValueTreeState apvts {*this, nullptr, "Parameters", createParameterLayout()};
     
     
-
-   
-
     ChainSettings loadChainSettings();
 
+    
+
 private:
+
+    EQChain left, right, both;
+
+    std::map<Channel, EQChain*> chains {
+        {LEFT, &left},
+        {RIGHT, &right},
+        {BOTH, &both}
+    };
+
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EqualizerAudioProcessor)
 };

@@ -89,9 +89,21 @@ void EqualizerAudioProcessor::changeProgramName (int index, const juce::String& 
 //==============================================================================
 void EqualizerAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    // Use this method as the place to do any pre-playback
-    // initialisation that you need..
-    juce::ignoreUnused (sampleRate, samplesPerBlock);
+    juce::dsp::ProcessSpec spec;
+    
+    spec.maximumBlockSize = samplesPerBlock;
+    
+    spec.numChannels = 1;
+    
+    spec.sampleRate = sampleRate;
+    
+    //chains are a serries of processors that perform operations on the signal
+    for (auto channelchain : chains){
+        channelchain.second->prepare(spec);
+        auto chainSettings = loadChainSettings();
+        channelchain.second->update(chainSettings.channelEQSettings[channelchain.first]);
+    }
+
 }
 
 void EqualizerAudioProcessor::releaseResources()
@@ -127,7 +139,44 @@ bool EqualizerAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts
 void EqualizerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
                                              juce::MidiBuffer& midiMessages)
 {
+     juce::ScopedNoDenormals noDenormals;
+    auto totalNumInputChannels  = getTotalNumInputChannels();
+    auto totalNumOutputChannels = getTotalNumOutputChannels();
+
+    // In case we have more outputs than inputs, this code clears any output
+    // channels that didn't contain input data, (because these aren't
+    // guaranteed to be empty - they may contain garbage).
+    // This is here to avoid people getting screaming feedback
+    // when they first compile a plugin, but obviously you don't need to keep
+    // this code if your algorithm always overwrites all the output channels.
+    for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
+        buffer.clear (i, 0, buffer.getNumSamples());
+
+// thi will set coefficients for filters
     
+    for (auto channelchain : chains){
+        auto chainSettings = loadChainSettings();
+        channelchain.second->update(chainSettings.channelEQSettings[channelchain.first]);
+    }
+
+
+// copy the audio block
+    juce::dsp::AudioBlock<float> block(buffer);
+    
+    // here we get the left and right channels
+    auto leftBlock = block.getSingleChannelBlock(0);
+    auto rightBlock = block.getSingleChannelBlock(1);
+    
+    // converting to context? because the chain processors require a context
+    juce::dsp::ProcessContextReplacing<float> leftContext(leftBlock);
+    juce::dsp::ProcessContextReplacing<float> rightContext(rightBlock);
+    
+
+    // pass our audio through the chains to perform operations
+    chains[LEFT]->process(leftContext);
+    chains[RIGHT]->process(rightContext);
+    chains[BOTH]->process(leftContext);
+    chains[BOTH]->process(rightContext);    
 }
 
 //==============================================================================
@@ -236,10 +285,6 @@ ChainSettings EqualizerAudioProcessor::loadChainSettings()
 
         settings.channelEQSettings[channelname.first] = eqSettings;
     }
-
-
-    
-
     return settings;
 }
 

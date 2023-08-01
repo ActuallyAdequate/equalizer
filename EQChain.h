@@ -1,4 +1,6 @@
-#include "juce_dsp/juce_dsp.h"
+#pragma once
+
+#include <juce_dsp/juce_dsp.h>
 
 
 //using MonoChain = juce::dsp::ProcessorChain<CutFilter, Filter, CutFilter>; //Low CUt Peak High Cut
@@ -35,6 +37,8 @@ inline void updateCoefficients(Coefficients& old, const Coefficients& replacemen
 
 class EQChain {
     public:
+        void process(const juce::dsp::ProcessContextReplacing<float> &context);
+        void prepare(const juce::dsp::ProcessSpec &spec);
         void update(EQSettings& settings);
     private:
         Chain chain;
