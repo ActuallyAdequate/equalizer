@@ -11,13 +11,13 @@
 enum Channel {
     LEFT,
     RIGHT,
-    BOTH
+ //   BOTH
 };
 
 std::map<Channel, juce::String> channelNames {
     {LEFT, "Left"},
-    {RIGHT, "right"},
-    {BOTH, "Both"}
+   {RIGHT, "right"},
+ //   {BOTH, "Both"}
 };
 
 struct ChainSettings {
@@ -71,7 +71,7 @@ public:
     juce::AudioProcessorValueTreeState apvts {*this, nullptr, "Parameters", createParameterLayout()};
     
     
-    ChainSettings loadChainSettings();
+    ChainSettings loadChainSettings(juce::AudioProcessorValueTreeState& apvts);
 
     
 
@@ -80,9 +80,9 @@ private:
     EQChain left, right, both;
 
     std::map<Channel, EQChain*> chains {
-        {LEFT, &left},
-        {RIGHT, &right},
-        {BOTH, &both}
+       {LEFT, &left},
+       {RIGHT, &right},
+   //     {BOTH, &both}
     };
 
     //==============================================================================

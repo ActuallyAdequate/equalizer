@@ -35,11 +35,18 @@ inline void updateCoefficients(Coefficients& old, const Coefficients& replacemen
     *old = *replacements;
 };
 
+inline Coefficients makePeakFilter(const PeakSettings& chainSettings, double sampleRate) {
+    return juce::dsp::IIR::Coefficients<float>::makePeakFilter(sampleRate, chainSettings.peakFreq, chainSettings.peakQuality,juce::Decibels::decibelsToGain(chainSettings.peakGainDecibels));
+}
+
 class EQChain {
     public:
         void process(const juce::dsp::ProcessContextReplacing<float> &context);
         void prepare(const juce::dsp::ProcessSpec &spec);
-        void update(EQSettings& settings);
+        void update(const EQSettings& settings);
     private:
         Chain chain;
+        double sampleRate;
+
+        void updatePeakFilters(const EQSettings &settings);
 };

@@ -98,9 +98,9 @@ void EqualizerAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBl
     spec.sampleRate = sampleRate;
     
     //chains are a serries of processors that perform operations on the signal
-    for (auto channelchain : chains){
+    for (auto& channelchain : chains){
         channelchain.second->prepare(spec);
-        auto chainSettings = loadChainSettings();
+        auto chainSettings = loadChainSettings(apvts);
         channelchain.second->update(chainSettings.channelEQSettings[channelchain.first]);
     }
 
@@ -154,8 +154,8 @@ void EqualizerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
 
 // thi will set coefficients for filters
     
-    for (auto channelchain : chains){
-        auto chainSettings = loadChainSettings();
+    for (auto& channelchain : chains){
+        auto chainSettings = loadChainSettings(apvts);
         channelchain.second->update(chainSettings.channelEQSettings[channelchain.first]);
     }
 
@@ -175,8 +175,8 @@ void EqualizerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     // pass our audio through the chains to perform operations
     chains[LEFT]->process(leftContext);
     chains[RIGHT]->process(rightContext);
-    chains[BOTH]->process(leftContext);
-    chains[BOTH]->process(rightContext);    
+   // chains[BOTH]->process(leftContext);
+    // chains[BOTH]->process(rightContext);    
 }
 
 //==============================================================================
@@ -250,7 +250,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout EqualizerAudioProcessor::cre
     return layout;
 }
 
-ChainSettings EqualizerAudioProcessor::loadChainSettings()
+ChainSettings EqualizerAudioProcessor::loadChainSettings(juce::AudioProcessorValueTreeState& apvts)
 {
     ChainSettings settings;
     for (auto channelname : channelNames) {
