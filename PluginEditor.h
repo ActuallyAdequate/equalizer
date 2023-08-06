@@ -5,16 +5,6 @@
 
 
 
-
-// class ControlPanel : juce::Component {
-//  public:
-//     private:
-//         void paint(juce::Graphics& g) override;
-//         void resized() override;
-// };
-
-
-
 //==============================================================================
 class EqualizerAudioEditor  : public juce::AudioProcessorEditor
 {
@@ -32,8 +22,8 @@ private:
     EqualizerAudioProcessor& processorRef;
 
     ControlSpectrum controlSpectrum;
-   // ControlPanel controlPanel;
-    // std::vector<ControlPanel> controlPanels[7];
+    std::vector<std::unique_ptr<ControlPanel>>  controlPanels;
+
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EqualizerAudioEditor)
 };
